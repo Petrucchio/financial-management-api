@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using FinancialManagementAPI.Data;
 using FinancialManagementAPI.DTOs;
 using FinancialManagementAPI.Models;
 
@@ -5,18 +7,29 @@ namespace FinancialManagementAPI.Services
 {
     public class TransactionService : ITransactionService
     {
-        private static readonly List<Transaction> _transactions = new();
-        private static int _nextId = 1;
+        private readonly AppDbContext _context;
+
+        public TransactionService(AppDbContext context)
+        {
+            _context = context;
+        }
 
         public IEnumerable<TransactionDTO> GetAll()
         {
-            return _transactions.Select(MapToDTO);
+            return _context.Transactions
+                .AsNoTracking()
+                .Select(t => MapToDTO(t))
+                .ToList();
         }
 
         public TransactionDTO? GetById(int id)
         {
-            var transaction = _transactions.FirstOrDefault(t => t.Id == id);
+            var transaction = _context.Transactions
+                .AsNoTracking()
+                .FirstOrDefault(t => t.Id == id);
+
             if (transaction == null) return null;
+
             return MapToDTO(transaction);
         }
 
@@ -24,7 +37,6 @@ namespace FinancialManagementAPI.Services
         {
             var transaction = new Transaction
             {
-                Id = _nextId++,
                 Description = dto.Description,
                 Amount = dto.Amount,
                 Category = dto.Category,
@@ -32,7 +44,9 @@ namespace FinancialManagementAPI.Services
                 Date = DateTime.UtcNow
             };
 
-            _transactions.Add(transaction);
+            _context.Transactions.Add(transaction);
+            _context.SaveChanges();
+
             return MapToDTO(transaction);
         }
 

@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using FinancialManagementAPI.Data;
 using FinancialManagementAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,7 +16,11 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-builder.Services.AddSingleton<ITransactionService, TransactionService>();
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Trocado de Singleton para Scoped — obrigatório quando usa DbContext
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 
 var app = builder.Build();
 
@@ -24,7 +30,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseExceptionHandler("/error"); // ← middleware global de erros
+app.UseExceptionHandler("/error");
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
