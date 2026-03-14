@@ -4,8 +4,10 @@ API REST para gerenciamento de transações financeiras pessoais, desenvolvida c
 
 ## Tecnologias
 
-- ASP.NET Core 8
+- ASP.NET Core 9
 - C#
+- Entity Framework Core 9
+- PostgreSQL
 - Swagger / OpenAPI
 - Dependency Injection
 - Data Annotations (validação)
@@ -43,8 +45,18 @@ POST /api/transactions
 `type`: 0 = Income, 1 = Expense
 
 ## Execução local
+
+> Pré-requisito: Docker instalado e rodando.
+
+Suba o banco de dados:
+```bash
+docker run --name financialdb -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d postgres
+```
+
+Rode a API:
 ```bash
 dotnet restore
+dotnet ef database update
 dotnet run
 ```
 
@@ -52,7 +64,7 @@ Swagger disponível em: `http://localhost:{porta}/swagger`
 
 ## Roadmap
 
-- [ ] PostgreSQL com Entity Framework Core
+- [x] PostgreSQL com Entity Framework Core
 - [ ] Repository Pattern
 - [ ] JWT Authentication
 - [ ] Filtros e paginação
