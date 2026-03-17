@@ -14,18 +14,22 @@ namespace FinancialManagementAPI.Services
             _context = context;
         }
 
+        private IQueryable<Transaction> Query()
+        {
+            return _context.Transactions.AsNoTracking();
+        }
+
         public IEnumerable<TransactionDTO> GetAll()
         {
-            return _context.Transactions
-                .AsNoTracking()
+            return Query()
+                .OrderByDescending(t => t.Date)
                 .Select(t => MapToDTO(t))
                 .ToList();
         }
 
         public TransactionDTO? GetById(int id)
         {
-            var transaction = _context.Transactions
-                .AsNoTracking()
+            var transaction = Query()
                 .FirstOrDefault(t => t.Id == id);
 
             if (transaction == null) return null;
@@ -33,8 +37,20 @@ namespace FinancialManagementAPI.Services
             return MapToDTO(transaction);
         }
 
+        public IEnumerable<TransactionDTO> GetByCategory(string category)
+        {
+            return Query()
+                .Where(t => t.Category.ToLower() == category.ToLower())
+                .OrderByDescending(t => t.Date)
+                .Select(t => MapToDTO(t))
+                .ToList();
+        }
+
         public TransactionDTO Create(CreateTransactionDTO dto)
         {
+            if (dto.Amount <= 0)
+                throw new ArgumentException("Amount must be greater than zero.");
+
             var transaction = new Transaction
             {
                 Description = dto.Description,

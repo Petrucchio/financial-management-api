@@ -20,7 +20,7 @@ namespace FinancialManagementAPI.Controllers
             _logger = logger;
         }
 
-        /// <summary>Returns all transactions.</summary>
+        /// <summary>Returns all transactions ordered by date.</summary>
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<TransactionDTO>), StatusCodes.Status200OK)]
         public IActionResult Get()
@@ -45,6 +45,15 @@ namespace FinancialManagementAPI.Controllers
             }
 
             return Ok(transaction);
+        }
+
+        /// <summary>Returns transactions filtered by category.</summary>
+        [HttpGet("category/{category}")]
+        [ProducesResponseType(typeof(IEnumerable<TransactionDTO>), StatusCodes.Status200OK)]
+        public IActionResult GetByCategory(string category)
+        {
+            _logger.LogInformation("Fetching transactions for category: {Category}", category);
+            return Ok(_service.GetByCategory(category));
         }
 
         /// <summary>Creates a new transaction.</summary>

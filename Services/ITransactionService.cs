@@ -6,6 +6,7 @@ namespace FinancialManagementAPI.Services
     {
         IEnumerable<TransactionDTO> GetAll();
         TransactionDTO? GetById(int id);
+        IEnumerable<TransactionDTO> GetByCategory(string category);
         TransactionDTO Create(CreateTransactionDTO dto);
     }
 }
